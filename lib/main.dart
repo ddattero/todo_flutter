@@ -79,7 +79,6 @@ class _TaskListState extends State<TaskList> {
   }
 
   void _addTask(String title) {
-    print(title);
     if (title.isEmpty) {
       return;
     }
