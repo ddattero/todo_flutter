@@ -29,7 +29,7 @@ class _TaskListState extends State<TaskList> {
   */
   final List<Task> _completedList = <Task>[];
 
-  //
+  //stack to store tasks changed to completed
   final TaskStack _undoStack = TaskStack();
 
   final TextEditingController _textFieldController = TextEditingController();
