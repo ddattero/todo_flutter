@@ -35,9 +35,9 @@ class _TaskListState extends State<TaskList> {
   final TextEditingController _textFieldController = TextEditingController();
 
   late Timer timer;
-  @override
 
   //refreshes the list once a second
+  @override
   void initState() {
     super.initState();
     timer = Timer.periodic(
@@ -45,32 +45,45 @@ class _TaskListState extends State<TaskList> {
   }
 
   //removes timer when app is quit
+  @override
   void dispose() {
     timer.cancel();
     super.dispose();
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Tasks')),
-        body: ListView(children: _getItems()),
-        floatingActionButton: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            FloatingActionButton(
-                onPressed: () => _undo(),
-                tooltip: 'Undo Completion',
-                child: Icon(Icons.undo)),
-            SizedBox(height: 10),
-            FloatingActionButton(
-                onPressed: () => _displayDialog(context),
-                tooltip: 'Add Item',
-                child: Icon(Icons.add))
-          ],
-        ));
+      appBar: AppBar(title: const Text('Tasks')),
+      body: Column(children: [
+        Expanded(child: ListView(children: _getItems())),
+        Container(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+            child: TextField(
+                controller: _textFieldController,
+                decoration: InputDecoration(
+                    fillColor: Colors.white,
+                    hintText: "Task title",
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: () {
+                        _addTask(_textFieldController.text);
+                      },
+                    ))))
+      ]),
+      floatingActionButton: FloatingActionButton(
+          onPressed: () => _undo(),
+          tooltip: 'Undo Completion',
+          child: const Icon(Icons.undo)),
+    );
   }
 
-  void _addTask(Task t) {
+  void _addTask(String title) {
+    print(title);
+    if (title.isEmpty) {
+      return;
+    }
+    Task t = Task.withoutNotes(title);
     setState(() {
       _todoList.add(t);
     });
@@ -86,9 +99,11 @@ class _TaskListState extends State<TaskList> {
 
   void _undo() {
     setState(() {
-      Task t = _undoStack.pop();
-      _completedList.remove(t);
-      _todoList.add(t);
+      if (_undoStack.size() > 0) {
+        Task t = _undoStack.pop();
+        _completedList.remove(t);
+        _todoList.add(t);
+      }
     });
   }
 
@@ -124,35 +139,6 @@ class _TaskListState extends State<TaskList> {
         });
       },
     );
-  }
-
-  Future<void> _displayDialog(BuildContext context) async {
-    return showDialog<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Add a task to your list'),
-            content: TextField(
-              controller: _textFieldController,
-              decoration: const InputDecoration(hintText: 'Enter task here'),
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('ADD'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _addTask(Task.withoutNotes(_textFieldController.text));
-                },
-              ),
-              TextButton(
-                child: const Text('CANCEL'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              )
-            ],
-          );
-        });
   }
 
   List<Widget> _getItems() {

@@ -34,4 +34,8 @@ class TaskStack {
   void remove(Task t) {
     stack.remove(t);
   }
+
+  int size() {
+    return stack.length;
+  }
 }
